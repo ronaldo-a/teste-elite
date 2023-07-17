@@ -50,6 +50,38 @@ function App() {
     return true;
   })
 
+  filteredCompanies.sort((a, b) => {return a.razaoSocial.localeCompare(b.razaoSocial)});
+
+  function exportTableToExcel(){
+    const dataType = 'application/vnd.ms-excel';
+    const tableSelect = document.getElementById("tableToExport");
+    const tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
+    
+    // Specify file name
+    const filename = 'lista_empresas.xls';
+    
+    // Create download link element
+    let downloadLink = document.createElement("a");
+    
+    document.body.appendChild(downloadLink);
+    
+    if (navigator.msSaveOrOpenBlob){
+        let blob = new Blob(['\ufeff', tableHTML], {
+            type: dataType
+        });
+        navigator.msSaveOrOpenBlob( blob, filename);
+    } else {
+        // Create a link to the file
+        downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+    
+        // Setting the file name
+        downloadLink.download = filename;
+        
+        //triggering the function
+        downloadLink.click();
+    }
+}
+
   return (
     <div className="App">
       <label for='status'>Status da empresa</label>
@@ -81,6 +113,23 @@ function App() {
           {filteredCompanies.map(empresa => <TableData empresa={empresa} key={empresa.codigo}/>)}
         </tbody>
       </table>
+
+      <table id="tableToExport" style={{display: "none"}}>
+        <thead>
+          <tr>
+            <th scope='col'>Código</th>
+            <th scope='col'>CNPJ</th>
+            <th scope='col'>Razão social</th>
+            <th scope='col'>Inscrição Municipal</th>
+            <th scope='col'>Inclusão</th>
+            <th scope='col'>Responsável</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filteredCompanies.map(empresa => <TableDataToExport empresa={empresa} key={empresa.codigo}/>)}
+        </tbody>
+      </table>
+      <button onClick={exportTableToExcel}>Exportar para planilha</button>
     </div>
   );
 }
@@ -98,6 +147,19 @@ function TableData({empresa}) {
       <td>{empresa.responsavelLegal}</td>
       <td>{empresa.telefoneContato}</td>
       <td>{empresa.email}</td>
+    </tr>
+  )
+}
+
+function TableDataToExport({empresa}) {
+  return (
+    <tr>
+      <td>{empresa.codigo}</td>
+      <td>{empresa.cnpj}</td>
+      <td>{empresa.razaoSocial}</td>
+      <td>{empresa.inscricaoMunicipal}</td>
+      <td>{empresa.dataInclusao}</td>
+      <td>{empresa.responsavelLegal}</td>
     </tr>
   )
 }
