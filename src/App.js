@@ -98,7 +98,7 @@ function App() {
 
       <table>
         <thead>
-          <tr>
+          <tr className='tableTitle'>
             <th>Lista de empresas</th>
           </tr>
           <tr>
